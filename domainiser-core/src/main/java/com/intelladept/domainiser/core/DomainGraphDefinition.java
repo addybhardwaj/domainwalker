@@ -12,26 +12,29 @@ import java.util.Map;
  * @author Addy
  * @version $Id $
  */
-public class DomainGraphDefinition implements Serializable {
+public class DomainGraphDefinition<K> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final String domain;
+    private final Class<K> klass;
 
-    private final Map<String, DomainGraphDefinition> children;
+    private final Map<String, DomainGraphDefinition<?>> children;
 
-    public DomainGraphDefinition(String domain) {
-        this.domain = domain;
-        this.children = new HashMap<String, DomainGraphDefinition>();
+    /**
+     * Default Constructor.
+     */
+    public DomainGraphDefinition(Class<K> klass) {
+        this.children = new HashMap<String, DomainGraphDefinition<?>>();
+        this.klass = klass;
     }
 
     /**
-     * Return the domain.
+     * Return the Class of the domain definition.
      * 
-     * @return the domain
+     * @return the klass
      */
-    public String getDomain() {
-        return this.domain;
+    public Class<K> getKlass() {
+        return this.klass;
     }
 
     /**
@@ -39,7 +42,7 @@ public class DomainGraphDefinition implements Serializable {
      * 
      * @return the children
      */
-    public Map<String, DomainGraphDefinition> getChildren() {
+    public Map<String, DomainGraphDefinition<?>> getChildren() {
         return this.children;
     }
 
@@ -48,8 +51,8 @@ public class DomainGraphDefinition implements Serializable {
      * 
      * @param child
      */
-    public void addChild(DomainGraphDefinition child) {
-        getChildren().put(child.getDomain(), child);
+    public void addChild(String property, DomainGraphDefinition<?> child) {
+        getChildren().put(property, child);
     }
 
     /**
@@ -58,8 +61,15 @@ public class DomainGraphDefinition implements Serializable {
      * @param property
      * @return
      */
-    public DomainGraphDefinition findDomainGraphDefinition(String property) {
-        return (getChildren() == null ? null : getChildren().get(property));
+    @SuppressWarnings("unchecked")
+    public <T> DomainGraphDefinition<T> findDomainGraphDefinition(String property, Class<T> clazz) {
+        DomainGraphDefinition<?> def = (getChildren() == null ? null : getChildren().get(
+                property));
+
+        if (def.getKlass().equals(clazz)) {
+            return (DomainGraphDefinition<T>) def;
+        }
+        return null;
     }
 
 }

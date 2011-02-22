@@ -19,7 +19,7 @@ public abstract class AbstractDomainWalker implements DomainWalker {
 
     public abstract <T, Z extends Collection<T>> Z walk(Collection<T> domainModels,
             Z returnCollection,
-            DomainGraphDefinition domainGraphDefinition);
+            DomainGraphDefinition<T> domainGraphDefinition);
 
     public <T> T walk(T domainModel) {
         return walk(domainModel, null);
@@ -29,7 +29,7 @@ public abstract class AbstractDomainWalker implements DomainWalker {
         return walk(domainModels, null);
     }
 
-    public <T> List<T> walk(List<T> domainModels, DomainGraphDefinition domainGraphDefinition) {
+    public <T> List<T> walk(List<T> domainModels, DomainGraphDefinition<T> domainGraphDefinition) {
         return walk(domainModels, createEmptyList(domainModels), domainGraphDefinition);
     }
 
@@ -37,7 +37,7 @@ public abstract class AbstractDomainWalker implements DomainWalker {
         return walk(domainModels, null);
     }
 
-    public <T> Set<T> walk(Set<T> domainModels, DomainGraphDefinition domainGraphDefinition) {
+    public <T> Set<T> walk(Set<T> domainModels, DomainGraphDefinition<T> domainGraphDefinition) {
         return walk(domainModels, createEmptySet(domainModels), domainGraphDefinition);
     }
 

@@ -19,7 +19,8 @@ public class CloningDomainWalker extends AbstractDomainWalker {
     // domain objects which are not cloned, can be left as original objects or set to null
     private boolean keepReferences;
 
-    public <T> T walk(T domainModel, DomainGraphDefinition domainGraphDefinition) {
+    @SuppressWarnings("unchecked")
+    public <T> T walk(T domainModel, DomainGraphDefinition<T> domainGraphDefinition) {
 
         T clonedModel = null;
         if (domainModel != null) {
@@ -28,17 +29,17 @@ public class CloningDomainWalker extends AbstractDomainWalker {
                 Map<String, Object> clonedMap = BeanUtils.describe(domainModel);
                 for (Entry<String, Object> property : clonedMap.entrySet()) {
                     if (this.domainResolver.isDomainModel(property.getKey())) {
-                        DomainGraphDefinition definition = null;
+                        DomainGraphDefinition<Object> childDef = null;
 
                         if (domainGraphDefinition != null) {
-                            definition = domainGraphDefinition.findDomainGraphDefinition(property
-                                            .getKey());
+                            childDef = domainGraphDefinition.findDomainGraphDefinition(property
+                                            .getKey(), Object.class);
                         }
 
                         Object propertyClone = null;
                         // if property needs to be cloned
-                        if (definition != null) {
-                            propertyClone = walk(property.getValue(), definition);
+                        if (childDef != null) {
+                            propertyClone = walk(property.getValue(), childDef);
                         } else if (this.keepReferences) {
                             propertyClone = property.getValue();
                         }
@@ -63,7 +64,7 @@ public class CloningDomainWalker extends AbstractDomainWalker {
     }
 
     public <K, V> Map<K, V> walk(Map<K, V> domainModels, Map<K, V> returnMap,
-            DomainGraphDefinition domainGraphDefinition) {
+            DomainGraphDefinition<V> domainGraphDefinition) {
         if (domainModels != null) {
 
             // use hash map if map not provided
@@ -90,7 +91,7 @@ public class CloningDomainWalker extends AbstractDomainWalker {
 
     @Override
     public <T, Z extends Collection<T>> Z walk(Collection<T> domainModels, Z returnCollection,
-            DomainGraphDefinition domainGraphDefinition) {
+            DomainGraphDefinition<T> domainGraphDefinition) {
         if (domainModels != null) {
 
             // keep local cache for cloned objects
