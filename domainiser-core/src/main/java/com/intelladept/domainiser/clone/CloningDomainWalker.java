@@ -17,7 +17,7 @@ public class CloningDomainWalker extends AbstractDomainWalker {
     private DomainResolver domainResolver;
 
     // domain objects which are not cloned, can be left as original objects or set to null
-    private boolean keepReferences;
+    private boolean keepReferences = false;
 
     @SuppressWarnings("unchecked")
     public <T> T walk(T domainModel, DomainGraphDefinition<T> domainGraphDefinition) {
@@ -32,8 +32,8 @@ public class CloningDomainWalker extends AbstractDomainWalker {
                         DomainGraphDefinition<Object> childDef = null;
 
                         if (domainGraphDefinition != null) {
-                            childDef = domainGraphDefinition.findDomainGraphDefinition(property
-                                            .getKey(), Object.class);
+                            childDef = domainGraphDefinition.getChild(property
+                                    .getKey(), Object.class);
                         }
 
                         Object propertyClone = null;
@@ -63,8 +63,8 @@ public class CloningDomainWalker extends AbstractDomainWalker {
         return clonedModel;
     }
 
-    public <K, V> Map<K, V> walk(Map<K, V> domainModels, Map<K, V> returnMap,
-            DomainGraphDefinition<V> domainGraphDefinition) {
+    public <K, V> Map<K, V> walkMap(Map<K, V> domainModels, Map<K, V> returnMap,
+                                    DomainGraphDefinition<V> domainGraphDefinition) {
         if (domainModels != null) {
 
             // use hash map if map not provided
@@ -116,4 +116,19 @@ public class CloningDomainWalker extends AbstractDomainWalker {
         return new HashMap<T, T>();
     }
 
+    public DomainResolver getDomainResolver() {
+        return domainResolver;
+    }
+
+    public void setDomainResolver(DomainResolver domainResolver) {
+        this.domainResolver = domainResolver;
+    }
+
+    public boolean isKeepReferences() {
+        return keepReferences;
+    }
+
+    public void setKeepReferences(boolean keepReferences) {
+        this.keepReferences = keepReferences;
+    }
 }

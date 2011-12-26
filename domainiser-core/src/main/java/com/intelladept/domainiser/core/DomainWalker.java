@@ -18,17 +18,17 @@ public interface DomainWalker {
 
     <T> T walk(T domainModel, DomainGraphDefinition<T> domainGraphDefinition);
 
-    <T> List<T> walk(List<T> domainModels);
+    <T> List<T> walkList(List<T> domainModels);
 
-    <T> List<T> walk(List<T> domainModels, DomainGraphDefinition<T> domainGraphDefinition);
+    <T> List<T> walkList(List<T> domainModels, DomainGraphDefinition<T> domainGraphDefinition);
 
-    <T> Set<T> walk(Set<T> domainModels);
+    <T> Set<T> walkSet(Set<T> domainModels);
 
-    <T> Set<T> walk(Set<T> domainModels, DomainGraphDefinition<T> domainGraphDefinition);
+    <T> Set<T> walkSet(Set<T> domainModels, DomainGraphDefinition<T> domainGraphDefinition);
 
-    <K, V> Map<K, V> walk(Map<K, V> domainModels);
+    <K, V> Map<K, V> walkMap(Map<K, V> domainModels);
 
-    <K, V> Map<K, V> walk(Map<K, V> domainModels, Map<K, V> returnMap,
-            DomainGraphDefinition<V> domainGraphDefinition);
+    <K, V> Map<K, V> walkMap(Map<K, V> domainModels, Map<K, V> returnMap,
+                             DomainGraphDefinition<V> domainGraphDefinition);
 
 }

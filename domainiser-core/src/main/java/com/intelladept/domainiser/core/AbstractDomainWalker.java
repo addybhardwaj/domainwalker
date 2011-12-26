@@ -25,23 +25,23 @@ public abstract class AbstractDomainWalker implements DomainWalker {
         return walk(domainModel, null);
     }
 
-    public <T> List<T> walk(List<T> domainModels) {
-        return walk(domainModels, null);
+    public <T> List<T> walkList(List<T> domainModels) {
+        return walkList(domainModels, null);
     }
 
-    public <T> List<T> walk(List<T> domainModels, DomainGraphDefinition<T> domainGraphDefinition) {
+    public <T> List<T> walkList(List<T> domainModels, DomainGraphDefinition<T> domainGraphDefinition) {
         return walk(domainModels, createEmptyList(domainModels), domainGraphDefinition);
     }
 
-    public <T> Set<T> walk(Set<T> domainModels) {
-        return walk(domainModels, null);
+    public <T> Set<T> walkSet(Set<T> domainModels) {
+        return walkSet(domainModels, (DomainGraphDefinition) null);
     }
 
-    public <T> Set<T> walk(Set<T> domainModels, DomainGraphDefinition<T> domainGraphDefinition) {
+    public <T> Set<T> walkSet(Set<T> domainModels, DomainGraphDefinition<T> domainGraphDefinition) {
         return walk(domainModels, createEmptySet(domainModels), domainGraphDefinition);
     }
 
-    public <K, V> Map<K, V> walk(Map<K, V> domainModels) {
+    public <K, V> Map<K, V> walkMap(Map<K, V> domainModels) {
         return walk(domainModels, null);
     }
 
