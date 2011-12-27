@@ -20,16 +20,19 @@ import java.util.Set;
  * Holds the RW properties for a domain Model and also provides information about the nested
  * domain models.
  *
- * @author Addy
+ * @author Aditya Bhardwaj
  * @version $Id $
  */
 public final class DomainDefinition<K> implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DomainDefinition.class);
+    public static final String UNINITIALISED_ERROR_MESSAGE = "DomainDefinition has not been initiliased with a DomainResolver";
 
     private final Class<K> clazz;
 
     private final Map<String, PropertyDefinition> properties;
+
+    private boolean isInitialised = false;
     
     private DomainDefinition(Class<K> clazz) {
         this.clazz = clazz;
@@ -51,6 +54,12 @@ public final class DomainDefinition<K> implements Serializable {
         return domainDefinition;
     }
 
+    /**
+     * Initialises the domain definition with the properties and its types. This is critical for the functioning
+     * of utilities using this class.
+     *
+     * @param domainResolver
+     */
     public void init(DomainResolver domainResolver) {
 
         Validate.notNull(domainResolver, "Domain resolver cannot be null");
@@ -120,6 +129,8 @@ public final class DomainDefinition<K> implements Serializable {
                 }
             }
         }
+
+        isInitialised = true;
     }
     
     private int getUnderlyingTypeIndex(Class wrappingClass) {
@@ -133,23 +144,43 @@ public final class DomainDefinition<K> implements Serializable {
             throw new IllegalArgumentException("Unknown wrapping class type encountered");
         }
     }
-    
+
+    /**
+     * Returns all the read-write properties.
+     *
+     * @return
+     */
     public Set<String> getProperties() {
+        Validate.isTrue(isInitialised, UNINITIALISED_ERROR_MESSAGE);
         if (properties.size() == 0) {
             LOGGER.warn("No properties found. Check if Domain Definition was initialised using Domain Resolver");
         }
         return properties.keySet();
     }
 
+    /**
+     * Returns the Class type of the provided property, if the property is a domain object. Otherwise null is returned.
+     *
+     * @param property
+     * @return
+     */
     public Class<?> getUnderlyingDomainModel(String property) {
+        Validate.isTrue(isInitialised, UNINITIALISED_ERROR_MESSAGE);
         PropertyDefinition propertyDefinition = properties.get(property);
         if (propertyDefinition != null) {
             return propertyDefinition.domainClass;
         }
         return null;
     }
-    
+
+    /**
+     * Returns the actual Class of the property i.e. List, Map or specific class if property is an association.
+     *
+     * @param property
+     * @return
+     */
     public Class<?> getActualClass(String property) {
+        Validate.isTrue(isInitialised, UNINITIALISED_ERROR_MESSAGE);
         PropertyDefinition propertyDefinition = properties.get(property);
         if (propertyDefinition != null) {
             return propertyDefinition.actualClass;
@@ -157,6 +188,11 @@ public final class DomainDefinition<K> implements Serializable {
         return null;
     }
 
+    /**
+     * Returns the domain object class of the domain definition.
+     *
+     * @return
+     */
     public Class<K> getClazz() {
         return clazz;
     }

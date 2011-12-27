@@ -9,17 +9,42 @@ import java.util.*;
  * instance, implementation of DomainWalker can be used to clone a section of domain graph or lazily load domain graph
  * in conjunction with ORM libraries.
  * 
- * @author Addy
+ * @author Aditya Bhardwaj
  * @version $Id $
  */
 public abstract class AbstractDomainWalker implements DomainWalker {
 
     private DomainResolver domainResolver;
 
+    /**
+     * Walks a collection of domain objects and returns the result in the provided collection using the provided domain
+     * graph definition.
+     *
+     * @param domainModels
+     * @param returnCollection - return collection cannot be null
+     * @param domainGraphDefinition
+     * @param <T>
+     * @param <Z>
+     * @return
+     */
     public abstract <T, Z extends Collection<T>> Z walk(Collection<T> domainModels,
             Z returnCollection,
             DomainGraphDefinition<T> domainGraphDefinition);
 
+    /**
+     * Walks a map of domain objects and returns the result in the provided map using the provided domain
+     * graph definition.
+     *
+     * @param domainModels
+     * @param returnMap - return map cannot be null
+     * @param domainGraphDefinition
+     * @param <K>
+     * @param <V>
+     * @return
+     */
+    public abstract <K, V> Map<K, V> walkMap(Map<K, V> domainModels, Map<K, V> returnMap,
+                                    DomainGraphDefinition<V> domainGraphDefinition);
+    
     @Override
     public <T> T walk(T domainModel) {
         Validate.notNull(domainModel, "Domain model to be cloned cannot be null");
@@ -39,7 +64,7 @@ public abstract class AbstractDomainWalker implements DomainWalker {
 
     @Override
     public <T> Set<T> walkSet(Set<T> domainModels, Class<T> clazz) {
-        return walkSet(domainModels, clazz);
+        return walkSet(domainModels, new DomainGraphDefinition<T>(DomainDefinition.getInstance(clazz, domainResolver)));
     }
 
     @Override
@@ -48,18 +73,49 @@ public abstract class AbstractDomainWalker implements DomainWalker {
     }
 
     @Override
+    public <K, V> Map<K, V> walkMap(Map<K, V> domainModels, Class<V> clazz) {
+        return walkMap(domainModels, createEmptyMap(domainModels),
+                new DomainGraphDefinition<V>(DomainDefinition.getInstance(clazz, domainResolver)));
+    }
+
+    @Override
     public <K, V> Map<K, V> walkMap(Map<K, V> domainModels, DomainGraphDefinition<V> domainGraphDefinition) {
         return walkMap(domainModels, createEmptyMap(domainModels), domainGraphDefinition);
     }
 
+    /**
+     * Creates an empty set for the provided model. Default implementation returns {@link HashSet}. If it needs
+     * to be optimised this method should be overriden.
+     *
+     * @param model
+     * @param <T>
+     * @return
+     */
     protected <T> Set<T> createEmptySet(Set<T> model) {
         return new HashSet<T>();
     }
 
+    /**
+     * Creates an empty list for the provided model. Default implementation returns {@link ArrayList}. If it needs
+     * to be optimised this method should be overriden.
+     *
+     * @param model
+     * @param <T>
+     * @return
+     */
     protected <T> List<T> createEmptyList(List<T> model) {
         return new ArrayList<T>();
     }
 
+    /**
+     * Creates an empty map for the provided model. Default implementation returns {@link HashMap}. If it needs
+     * to be optimised this method should be overriden.
+     *
+     * @param model
+     * @param <K>
+     * @param <V>
+     * @return
+     */
     protected <K, V> Map<K, V> createEmptyMap(Map<K, V> model) {
         return new HashMap<K, V>();
     }

@@ -11,7 +11,7 @@ import java.util.Map;
  * models with data before the service layer transactions are closed. <br/> A domain model can have many domain graph
  * definitions because various consumers of services might require different domain depths.
  *
- * @author Addy
+ * @author Aditya Bhardwaj
  * @version $Id $
  */
 public class DomainGraphDefinition<K> implements Serializable {

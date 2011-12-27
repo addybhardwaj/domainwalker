@@ -21,6 +21,8 @@ import java.util.Map.Entry;
  *         <li>Test if an object already cloned is used as reference or is duplicated</li>
  *     </ul>
  * </p>
+ *
+ * @author Aditya Bhardwaj
  */
 public class CloningDomainWalker extends AbstractDomainWalker {
 
