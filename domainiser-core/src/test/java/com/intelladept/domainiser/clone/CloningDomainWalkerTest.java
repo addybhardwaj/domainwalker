@@ -1,8 +1,13 @@
 package com.intelladept.domainiser.clone;
 
 import static com.intelladept.domainiser.core.DomainGraphDefinitionTest.*;
+import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotSame;
+import static org.junit.Assert.assertNull;
 
+import com.intelladept.domainiser.core.DomainDefinition;
+import com.intelladept.domainiser.core.DomainGraphDefinition;
 import com.intelladept.domainiser.core.DomainGraphDefinitionTest;
 import com.intelladept.domainiser.core.DomainResolver;
 import org.junit.Before;
@@ -25,43 +30,56 @@ public class CloningDomainWalkerTest {
 
         DomainResolver domainResolver = new DomainResolver() {
             @Override
-            public boolean isDomainModel(Object domain) {
-                return domain.getClass().getCanonicalName().contains("com.intelladept");
+            public boolean isDomainModel(Class domain) {
+                return domain.getCanonicalName().contains("com.intelladept");
             }
         };
         cloningDomainWalker.setDomainResolver(domainResolver);
 
-        grandDad = createPerson("Grand Dad", 80);
-        Person grandMom = createPerson("Grand Mom", 79);
+        grandDad = new Person("Grand Dad", 80);
+        Person grandMom = new Person("Grand Mom", 79);
         grandDad.setSpouse(grandMom);
 
-        Person dad = createPerson("Dad", 50);
-        Person mom = createPerson("Mom", 49);
+        Person dad = new Person("Dad", 50);
+        Person mom = new Person("Mom", 49);
         dad.setSpouse(mom);
 
         grandDad.addChild(dad);
         grandMom.addChild(dad);
 
-        Person child1 = createPerson("Child 1", 10);
+        Person child1 = new Person("Child 1", 10);
         dad.addChild(child1);
         mom.addChild(child1);
 
-        Person child2 = createPerson("Child 2", 15);
+        Person child2 = new Person("Child 2", 15);
         dad.addChild(child2);
         mom.addChild(child2);
     }
 
     @Test
-    public void testWalk() throws Exception {
+    public void testWalkDefault() throws Exception {
         Person person = cloningDomainWalker.walk(grandDad);
         assertNotSame(grandDad, person);
+        assertEquals(grandDad.getName(), person.getName());
+        assertEquals(grandDad.getAge(), person.getAge());
+        assertNull(person.getSpouse());
+        assertNotNull(person.getChildren());
+        assertEquals(0, person.getChildren().size());
     }
 
-    private Person createPerson(String name, int age) {
-        Person person = new Person();
-        person.setName(name);
-        person.setAge(age);
-        return person;
+    @Test
+    public void testWalkCopyChildren() throws Exception {
+        DomainDefinition<Person> personDomainDefinition = DomainDefinition.getInstance(Person.class, cloningDomainWalker.getDomainResolver());
+        DomainGraphDefinition<Person> domainGraphDefinition = new DomainGraphDefinition<Person>(personDomainDefinition);
+        domainGraphDefinition.addChild("children", personDomainDefinition);
+
+        Person person = cloningDomainWalker.walk(grandDad, domainGraphDefinition);
+        assertNotSame(grandDad, person);
+        assertEquals(grandDad.getName(), person.getName());
+        assertEquals(grandDad.getAge(), person.getAge());
+        assertNull(person.getSpouse());
+        assertNotNull(person.getChildren());
     }
+
 
 }

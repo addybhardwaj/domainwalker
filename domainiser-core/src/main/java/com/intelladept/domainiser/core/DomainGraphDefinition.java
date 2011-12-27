@@ -1,8 +1,9 @@
 package com.intelladept.domainiser.core;
 
-import org.apache.commons.beanutils.BeanUtils;
+import net.sf.cglib.beans.BeanMap;
 import org.apache.commons.lang.Validate;
 
+import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,20 +21,26 @@ public class DomainGraphDefinition<K> implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
-    private final Class<K> domainClass;
-
     private final Map<String, DomainGraphDefinition<?>> children;
 
-    private final Set<String> properties;
+    private final DomainDefinition<K> domainDefinition;
+
 
     /**
      * Default Constructor.
      */
-    public DomainGraphDefinition(Class<K> domainClass) throws Exception {
+    public DomainGraphDefinition(DomainDefinition<K> domainDefinition) {
         this.children = new HashMap<String, DomainGraphDefinition<?>>();
-        this.domainClass = domainClass;
-        K object = domainClass.newInstance();
-        this.properties = BeanUtils.describe(object).keySet();
+        this.domainDefinition = domainDefinition;
+    }
+
+    /**
+     * Returns the domain definition.
+     *
+     * @return
+     */
+    public DomainDefinition<K> getDomainDefinition() {
+        return domainDefinition;
     }
 
     /**
@@ -42,7 +49,7 @@ public class DomainGraphDefinition<K> implements Serializable {
      * @return the domainClass
      */
     public Class<K> getDomainClass() {
-        return this.domainClass;
+        return this.domainDefinition.getClazz();
     }
 
     /**
@@ -57,12 +64,25 @@ public class DomainGraphDefinition<K> implements Serializable {
     /**
      * Adds child domain graph.
      *
+     * @param property
      * @param child
      */
     public void addChild(String property, DomainGraphDefinition<?> child) {
         //check if this property exist
-        Validate.isTrue(this.properties.contains(property), property + " :property doesn't exist in the domain: " + domainClass);
+        Validate.isTrue(this.domainDefinition.getProperties().contains(property), property + " :property doesn't exist in the domain: " + getDomainClass());
         getAllChildren().put(property, child);
+    }
+
+    /**
+     * Adds child domain graph with default domain graph
+     *
+     * @param property
+     * @param propertyDomainDefinition
+     */
+    public void addChild(String property, DomainDefinition<?> propertyDomainDefinition) {
+        //check if this property exist
+        Validate.isTrue(this.domainDefinition.getProperties().contains(property), property + " :property doesn't exist in the domain: " + getDomainClass());
+        getAllChildren().put(property, new DomainGraphDefinition(propertyDomainDefinition));
     }
 
     /**
@@ -75,7 +95,7 @@ public class DomainGraphDefinition<K> implements Serializable {
     public <T> DomainGraphDefinition<T> getChild(String property, Class<T> clazz) {
         DomainGraphDefinition<?> def = getChild(property);
 
-        if (def!= null && def.getDomainClass().equals(clazz)) {
+        if (def != null && clazz.isAssignableFrom(def.getDomainClass())) {
             return (DomainGraphDefinition<T>) def;
         }
         return null;

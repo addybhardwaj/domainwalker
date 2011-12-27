@@ -18,9 +18,17 @@ public class DomainGraphDefinitionTest {
 
     private DomainGraphDefinition<Person> personDomainGraphDefinition;
 
+    private DomainResolver domainResolver;
+
     @Before
     public void setUp() throws Exception {
-        personDomainGraphDefinition = new DomainGraphDefinition<Person>(Person.class);
+        domainResolver = new DomainResolver() {
+            @Override
+            public boolean isDomainModel(Class domain) {
+                return domain.getCanonicalName().contains("intelladept");
+            }
+        };
+        personDomainGraphDefinition = new DomainGraphDefinition<Person>(DomainDefinition.getInstance(Person.class, domainResolver));
     }
 
     @Test
@@ -32,16 +40,26 @@ public class DomainGraphDefinitionTest {
     @Test
     public void testAddAndGetChild() throws Exception {
         String homeAddress = "home";
-        personDomainGraphDefinition.addChild(homeAddress, new DomainGraphDefinition<Address>(Address.class));
+        DomainGraphDefinition<Address> domainGraphDefinition = new DomainGraphDefinition<Address>(DomainDefinition.getInstance(Address.class, domainResolver));
+        personDomainGraphDefinition.addChild(homeAddress, domainGraphDefinition);
         Map<String, DomainGraphDefinition<?>> children = personDomainGraphDefinition.getAllChildren();
         assertNotNull(children.get(homeAddress));
+
+    }
+
+    @Test
+    public void testAddAndGetListChild() throws Exception {
+        String children = "children";
+        personDomainGraphDefinition.addChild(children, new DomainGraphDefinition<Address>(DomainDefinition.getInstance(Address.class, domainResolver)));
+        Map<String, DomainGraphDefinition<?>> childrenDef = personDomainGraphDefinition.getAllChildren();
+        assertNotNull(childrenDef.get(children));
 
     }
 
     @Test(expected = IllegalArgumentException.class)
     public void testAddInvalidChild() throws Exception {
         String address = "address";
-        personDomainGraphDefinition.addChild(address, new DomainGraphDefinition<Address>(Address.class));
+        personDomainGraphDefinition.addChild(address, new DomainGraphDefinition<Address>(DomainDefinition.getInstance(Address.class, domainResolver)));
     }
 
     @Test
@@ -50,7 +68,7 @@ public class DomainGraphDefinitionTest {
                 personDomainGraphDefinition.getChild("home", Address.class);
         assertNull(homeDomainGraphDef);
 
-        personDomainGraphDefinition.addChild("home", new DomainGraphDefinition<Address>(Address.class));
+        personDomainGraphDefinition.addChild("home", new DomainGraphDefinition<Address>(DomainDefinition.getInstance(Address.class, domainResolver)));
         homeDomainGraphDef =
                 personDomainGraphDefinition.getChild("home", Address.class);
         assertNotNull(homeDomainGraphDef);
@@ -78,6 +96,14 @@ public class DomainGraphDefinitionTest {
         private Map<String, Person> friends = new HashMap<String, Person>();
         private Address home;
         private Address office;
+
+        public Person() {
+        }
+
+        public Person(String name, int age) {
+            this.name = name;
+            this.age = age;
+        }
 
         public List<Person> getChildren() {
             return children;
@@ -137,7 +163,7 @@ public class DomainGraphDefinitionTest {
 
         public void setSpouse(Person spouse) {
             this.spouse = spouse;
-            if (spouse.getSpouse() == null) {
+            if (spouse != null && spouse.getSpouse() == null) {
                 spouse.setSpouse(this);
             }
         }
