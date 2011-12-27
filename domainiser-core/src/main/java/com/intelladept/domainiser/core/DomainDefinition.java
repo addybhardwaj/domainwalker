@@ -1,18 +1,20 @@
 package com.intelladept.domainiser.core;
 
-import net.sf.cglib.beans.BeanMap;
-import net.sf.cglib.reflect.FastClass;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.annotation.PostConstruct;
-import javax.lang.model.element.TypeParameterElement;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
-import java.lang.reflect.*;
-import java.util.*;
+import java.lang.reflect.GenericArrayType;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
+import java.lang.reflect.WildcardType;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Holds the RW properties for a domain Model and also provides information about the nested
@@ -21,7 +23,7 @@ import java.util.*;
  * @author Addy
  * @version $Id $
  */
-public class DomainDefinition<K> implements Serializable {
+public final class DomainDefinition<K> implements Serializable {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DomainDefinition.class);
 
@@ -162,11 +164,11 @@ public class DomainDefinition<K> implements Serializable {
     /**
      * Holds the property specific information.
      */
-    private static class PropertyDefinition {
+    private static final class PropertyDefinition {
         private Class<?> actualClass;
         private Class<?> domainClass;
 
-        public PropertyDefinition(Class<?> actualClass, Class<?> domainClass) {
+        private PropertyDefinition(Class<?> actualClass, Class<?> domainClass) {
             this.actualClass = actualClass;
             this.domainClass = domainClass;
         }

@@ -2,14 +2,13 @@ package com.intelladept.domainiser.clone;
 
 import static com.intelladept.domainiser.core.DomainGraphDefinitionTest.*;
 import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotSame;
-import static org.junit.Assert.assertNull;
+import static org.junit.Assert.*;
 
 import com.intelladept.domainiser.core.DomainDefinition;
 import com.intelladept.domainiser.core.DomainGraphDefinition;
 import com.intelladept.domainiser.core.DomainGraphDefinitionTest;
 import com.intelladept.domainiser.core.DomainResolver;
+import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,6 +19,8 @@ import org.junit.Test;
  */
 public class CloningDomainWalkerTest {
 
+    public static final String FRIEND_1 = "Friend1";
+    public static final String FRIEND_2 = "Friend2";
     private CloningDomainWalker cloningDomainWalker;
 
     private Person grandDad;
@@ -54,6 +55,20 @@ public class CloningDomainWalkerTest {
         Person child2 = new Person("Child 2", 15);
         dad.addChild(child2);
         mom.addChild(child2);
+        
+        Person grandDadFriend1 = new Person(FRIEND_1, 80);
+        Person grandDadFriend2 = new Person(FRIEND_2, 80);
+        grandDad.addFriend(grandDadFriend1.getName(), grandDadFriend1);
+        grandDad.addFriend(grandDadFriend2.getName(), grandDadFriend2);
+
+        Address address1 = new Address();
+        address1.setLine1("address1");
+        grandDad.addAddress(address1);
+        
+        Address address2 = new Address();
+        address2.setLine1("address2");
+        grandDad.addAddress(address2);
+
     }
 
     @Test
@@ -68,6 +83,52 @@ public class CloningDomainWalkerTest {
     }
 
     @Test
+    public void testWalkDefaultWithKeepReferences() throws Exception {
+        cloningDomainWalker.setKeepReferences(true);
+
+        Person person = cloningDomainWalker.walk(grandDad);
+        assertNotSame(grandDad, person);
+        assertEquals(grandDad.getName(), person.getName());
+        assertEquals(grandDad.getAge(), person.getAge());
+        assertNotNull(person.getSpouse());
+        assertSame(grandDad.getSpouse(), person.getSpouse());
+        assertEquals(1, person.getChildren().size());
+        assertSame("Dad object should be the same", grandDad.getChildren().get(0), person.getChildren().get(0));
+        assertEquals(2, person.getFriends().size());
+        assertSame("Friend1 object should be the same",
+                grandDad.getFriends().get(FRIEND_1),
+                person.getFriends().get(FRIEND_1));
+
+        assertEquals(2, person.getAddresses().size());
+
+        //one of the cloned address should not match any of the address from the original object.
+        boolean exactMatchFound = false;
+        Address clonedAddress = person.getAddresses().iterator().next();
+        for(Address address : grandDad.getAddresses()) {
+            if(address ==  clonedAddress) {
+                exactMatchFound = true;
+            }            
+        }
+        assertTrue("Atleast one should match by reference", exactMatchFound);
+    }
+
+    @Test
+    public void testWalkCopySpouse() throws Exception {
+        DomainDefinition<Person> personDomainDefinition = DomainDefinition.getInstance(Person.class, cloningDomainWalker.getDomainResolver());
+        DomainGraphDefinition<Person> domainGraphDefinition = new DomainGraphDefinition<Person>(personDomainDefinition);
+        domainGraphDefinition.addChild("spouse", personDomainDefinition);
+
+        Person person = cloningDomainWalker.walk(grandDad, domainGraphDefinition);
+        assertNotSame(grandDad, person);
+        assertEquals(grandDad.getName(), person.getName());
+        assertEquals(grandDad.getAge(), person.getAge());
+        assertNotNull(person.getSpouse());
+        assertNotSame(grandDad.getSpouse(), person.getSpouse());
+        assertEquals(0, person.getChildren().size());
+        assertEquals(0, person.getFriends().size());
+    }
+
+    @Test
     public void testWalkCopyChildren() throws Exception {
         DomainDefinition<Person> personDomainDefinition = DomainDefinition.getInstance(Person.class, cloningDomainWalker.getDomainResolver());
         DomainGraphDefinition<Person> domainGraphDefinition = new DomainGraphDefinition<Person>(personDomainDefinition);
@@ -79,6 +140,52 @@ public class CloningDomainWalkerTest {
         assertEquals(grandDad.getAge(), person.getAge());
         assertNull(person.getSpouse());
         assertNotNull(person.getChildren());
+        assertEquals(1, person.getChildren().size());
+        assertNotSame("Dad object should not be the same", grandDad.getChildren().get(0), person.getChildren().get(0));
+        assertEquals(0, person.getFriends().size());
+    }
+
+    @Test
+    public void testWalkCopyFriendsAndChildren() throws Exception {
+        DomainDefinition<Person> personDomainDefinition = DomainDefinition.getInstance(Person.class, cloningDomainWalker.getDomainResolver());
+        DomainGraphDefinition<Person> domainGraphDefinition = new DomainGraphDefinition<Person>(personDomainDefinition);
+        domainGraphDefinition.addChild("children", personDomainDefinition);
+        domainGraphDefinition.addChild("friends", personDomainDefinition);
+
+        Person person = cloningDomainWalker.walk(grandDad, domainGraphDefinition);
+        assertNotSame(grandDad, person);
+        assertEquals(grandDad.getName(), person.getName());
+        assertEquals(grandDad.getAge(), person.getAge());
+        assertNull(person.getSpouse());
+        assertEquals("Dad should be copied", 1, person.getChildren().size());
+        assertNotSame("Dad object should not be the same", grandDad.getChildren().get(0), person.getChildren().get(0));
+        assertEquals("Friends should be copied", 2, person.getFriends().size());
+        Assert.assertNotSame("Friend1 object should not be the same",
+                grandDad.getFriends().get(FRIEND_1),
+                person.getFriends().get(FRIEND_1));
+    }
+
+    @Test
+    public void testWalkCopyAddresses() throws Exception {
+        DomainDefinition<Person> personDomainDefinition = DomainDefinition.getInstance(Person.class, cloningDomainWalker.getDomainResolver());
+        DomainDefinition<Address> addressDomainDefinition = DomainDefinition.getInstance(Address.class, cloningDomainWalker.getDomainResolver());
+        DomainGraphDefinition<Person> domainGraphDefinition = new DomainGraphDefinition<Person>(personDomainDefinition);
+        domainGraphDefinition.addChild("addresses", addressDomainDefinition);
+
+        Person person = cloningDomainWalker.walk(grandDad, domainGraphDefinition);
+        assertNotSame(grandDad, person);
+        assertEquals(grandDad.getName(), person.getName());
+        assertEquals(grandDad.getAge(), person.getAge());
+        assertNull(person.getSpouse());
+        assertEquals("Dad shouldn't have been  copied", 0, person.getChildren().size());
+        assertEquals("Friends should be empty", 0, person.getFriends().size());
+        Assert.assertEquals(2, person.getAddresses().size());
+
+        //one of the cloned address should not match any of the address from the original object.
+        Address clonedAddress = person.getAddresses().iterator().next();
+        for(Address address : grandDad.getAddresses()) {
+            Assert.assertNotSame(address, clonedAddress);
+        }
     }
 
 

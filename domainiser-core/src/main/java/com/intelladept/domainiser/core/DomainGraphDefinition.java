@@ -1,13 +1,10 @@
 package com.intelladept.domainiser.core;
 
-import net.sf.cglib.beans.BeanMap;
 import org.apache.commons.lang.Validate;
 
-import javax.annotation.PostConstruct;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * Defines a domain graph for a specific domain model. This definition is utilised by domain walkers to hydrate domain

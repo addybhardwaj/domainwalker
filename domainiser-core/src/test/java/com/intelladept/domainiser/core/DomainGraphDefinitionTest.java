@@ -92,7 +92,7 @@ public class DomainGraphDefinitionTest {
         private int age;
         private Person spouse;
         private List<Person> children = new ArrayList<Person>();
-        private Set<Address> addresses = new HashSet<Address>();
+        private Set<Address> addresses   = new HashSet<Address>();
         private Map<String, Person> friends = new HashMap<String, Person>();
         private Address home;
         private Address office;
@@ -182,6 +182,13 @@ public class DomainGraphDefinitionTest {
 
         public void setAge(int age) {
             this.age = age;
+        }
+
+        @Override
+        public String toString() {
+            return "Person{" +
+                    "name='" + name + '\'' +
+                    '}';
         }
     }
 
