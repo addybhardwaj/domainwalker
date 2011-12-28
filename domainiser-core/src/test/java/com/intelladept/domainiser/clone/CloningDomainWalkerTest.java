@@ -1,16 +1,17 @@
 package com.intelladept.domainiser.clone;
 
-import static com.intelladept.domainiser.core.DomainGraphDefinitionTest.*;
-import static junit.framework.Assert.assertNotNull;
-import static org.junit.Assert.*;
-
 import com.intelladept.domainiser.core.DomainDefinition;
 import com.intelladept.domainiser.core.DomainGraphDefinition;
-import com.intelladept.domainiser.core.DomainGraphDefinitionTest;
 import com.intelladept.domainiser.core.DomainResolver;
 import junit.framework.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
+
+import static com.intelladept.domainiser.core.DomainGraphDefinitionTest.Address;
+import static com.intelladept.domainiser.core.DomainGraphDefinitionTest.Person;
+import static junit.framework.Assert.assertNotNull;
+import static org.junit.Assert.*;
 
 /**
  * Unit test
@@ -186,6 +187,25 @@ public class CloningDomainWalkerTest {
         for(Address address : grandDad.getAddresses()) {
             Assert.assertNotSame(address, clonedAddress);
         }
+    }
+
+    @Test
+    @Ignore
+    public void testWalkCopySpouseAndChildrenCrossRefCheck() throws Exception {
+        DomainDefinition<Person> personDomainDefinition = DomainDefinition.getInstance(Person.class, cloningDomainWalker.getDomainResolver());
+        DomainGraphDefinition<Person> domainGraphDefinition = new DomainGraphDefinition<Person>(personDomainDefinition);
+        domainGraphDefinition.addChild("children", personDomainDefinition);
+        domainGraphDefinition.addChild("spouse", personDomainDefinition);
+
+        Person person = cloningDomainWalker.walk(grandDad, domainGraphDefinition);
+        assertNotSame(grandDad, person);
+        assertEquals(grandDad.getName(), person.getName());
+        assertEquals(grandDad.getAge(), person.getAge());
+        assertNotNull(person.getSpouse());
+        assertEquals("Dad should be copied", 1, person.getChildren().size());
+        assertNotSame("Dad object should not be the same", grandDad.getChildren().get(0), person.getChildren().get(0));
+        assertNotNull(person.getSpouse().getChildren());
+        assertEquals("Dad should be copied to grandmom also", 1, person.getSpouse().getChildren().size());
     }
 
 
