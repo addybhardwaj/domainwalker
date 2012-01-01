@@ -1,8 +1,9 @@
 package com.intelladept.domainiser.clone;
 
-import com.intelladept.domainiser.core.AbstractDomainWalker;
+import com.intelladept.domainiser.core.impl.AbstractDomainWalker;
 import com.intelladept.domainiser.core.DomainDefinition;
 import com.intelladept.domainiser.core.DomainGraphDefinition;
+import com.intelladept.domainiser.core.impl.DomainGraphDefinitionDecorator;
 import net.sf.cglib.beans.BeanMap;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
@@ -13,14 +14,6 @@ import java.util.Map.Entry;
 
 /**
  * Clones domain model based on the domain graph definition and domain definition provided.
- * <p>
- *     TODO Improvements
- *     <ul>
- *         <li>Logs should should the graph being operated in dot notation</li>
- *         <li>Test for bi-directional relationships if they are preserved</li>
- *         <li>Test if an object already cloned is used as reference or is duplicated</li>
- *     </ul>
- * </p>
  *
  * @author Aditya Bhardwaj
  */
@@ -33,8 +26,11 @@ public class CloningDomainWalker extends AbstractDomainWalker {
 
     @SuppressWarnings("unchecked")
     @Override
-    public <T> T walk(T domainModel, DomainGraphDefinition<T> domainGraphDefinition) {
-        LOGGER.debug("Domain cloning started for [{}]; domain graph def was for class [{}]", domainModel, domainGraphDefinition.getDomainClass());
+    public <T> T walk(T domainModel, DomainGraphDefinition<T> underlyingDomainGraphDefinition) {
+        DomainGraphDefinition<T> domainGraphDefinition = wrapInDecorator(underlyingDomainGraphDefinition);
+
+        LOGGER.debug("Domain cloning started for [{}];", domainGraphDefinition.getName());
+        LOGGER.trace("Domain cloning started for [{}]; domain graph def was for class [{}]", domainModel, domainGraphDefinition.getDomainClass());
 
         Validate.notNull(domainModel, "Domain model to be cloned cannot be null");
         Validate.notNull(domainGraphDefinition, "Domain graph definition cannot be null");
@@ -57,27 +53,21 @@ public class CloningDomainWalker extends AbstractDomainWalker {
                     Object propertyValue = null;
                     //walk the child tree if the child def was found
                     if (childDef != null) {
-                        if (List.class.isAssignableFrom(actualPropertyClass)) {
-                            propertyValue = walkList((List<?>) domainMap.get(propertyName), childDef);
-                        } else if (Set.class.isAssignableFrom(actualPropertyClass)) {
-                            propertyValue = walkSet((Set<?>) domainMap.get(propertyName), childDef);
-                        } else if (Map.class.isAssignableFrom(actualPropertyClass)) {
-                            propertyValue = walkMap((Map<?, ?>) domainMap.get(propertyName), childDef);
-                        } else {
-                            propertyValue = walk(domainMap.get(propertyName), childDef);
-                        }
-                        LOGGER.debug("Property [{}] cloned and set to [{}]", propertyName, propertyValue);
+
+                        propertyValue = walkDomainProperty(domainMap, propertyName, childDef, actualPropertyClass);
+
+                        LOGGER.trace("Property [{}] cloned and set to [{}]", propertyName, propertyValue);
                         clonedDomainBeanMap.put(propertyName, propertyValue);
                     } else if (this.keepReferences) {
-                        LOGGER.debug("Property [{}] cloned as original for original object [{}]; property type was [{}]",
+                        LOGGER.trace("Property [{}] cloned as original for original object [{}]; property type was [{}]",
                                 new Object[]{propertyName, domainModel, actualPropertyClass.getSimpleName()});
                         clonedDomainBeanMap.put(propertyName, domainMap.get(propertyName));
                     } else {
-                        LOGGER.debug("Property [{}] not cloned for original object [{}]; property type was [{}]", 
-                                new Object[] {propertyName, domainModel, actualPropertyClass.getSimpleName()});
+                        LOGGER.trace("Property [{}] not cloned for original object [{}]; property type was [{}]",
+                                new Object[]{propertyName, domainModel, actualPropertyClass.getSimpleName()});
                     }
                 } else {
-                    LOGGER.debug("Simple property [{}] copied was [{}]", propertyName, domainMap.get(propertyName));
+                    LOGGER.trace("Simple property [{}] copied was [{}]", propertyName, domainMap.get(propertyName));
                     clonedDomainBeanMap.put(propertyName, domainMap.get(propertyName));
                 }
             }
@@ -93,6 +83,30 @@ public class CloningDomainWalker extends AbstractDomainWalker {
 
         return clonedModel;
 
+    }
+
+    private Object walkDomainProperty(Map<String, Object> domainMap, String propertyName, DomainGraphDefinition childDef, Class<?> actualPropertyClass) {
+        Object propertyValue;
+        if (List.class.isAssignableFrom(actualPropertyClass)) {
+            propertyValue = walkList((List<?>) domainMap.get(propertyName), childDef);
+        } else if (Set.class.isAssignableFrom(actualPropertyClass)) {
+            propertyValue = walkSet((Set<?>) domainMap.get(propertyName), childDef);
+        } else if (Map.class.isAssignableFrom(actualPropertyClass)) {
+            propertyValue = walkMap((Map<?, ?>) domainMap.get(propertyName), childDef);
+        } else {
+            propertyValue = walk(domainMap.get(propertyName), childDef);
+        }
+        return propertyValue;
+    }
+
+    private <T> DomainGraphDefinition<T> wrapInDecorator(DomainGraphDefinition<T> underlyingDomainGraphDefinition) {
+        DomainGraphDefinition<T> domainGraphDefinition;
+        if (underlyingDomainGraphDefinition instanceof DomainGraphDefinitionDecorator) {
+            domainGraphDefinition = underlyingDomainGraphDefinition;
+        } else {
+            domainGraphDefinition = new DomainGraphDefinitionDecorator<T>(underlyingDomainGraphDefinition);
+        }
+        return domainGraphDefinition;
     }
 
     @Override
@@ -145,7 +159,6 @@ public class CloningDomainWalker extends AbstractDomainWalker {
         // methods. That will make lookup much faster.
         return new HashMap<T, T>();
     }
-
 
     public void setKeepReferences(boolean keepReferences) {
         this.keepReferences = keepReferences;

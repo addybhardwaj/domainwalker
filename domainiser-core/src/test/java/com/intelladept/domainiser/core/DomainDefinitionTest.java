@@ -1,9 +1,9 @@
 package com.intelladept.domainiser.core;
 
+import com.intelladept.domainiser.example.ExampleDomainResolver;
 import org.junit.Before;
 import org.junit.Test;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
@@ -22,12 +22,7 @@ public class DomainDefinitionTest {
 
     @Before
     public void before() {
-        domainResolver = new DomainResolver() {
-            @Override
-            public boolean isDomainModel(Class domain) {
-                return domain.getCanonicalName().contains("intelladept");
-            }
-        };
+        domainResolver = new ExampleDomainResolver();
         domainDefinition = DomainDefinition.getInstance(Bean.class, domainResolver
 
 

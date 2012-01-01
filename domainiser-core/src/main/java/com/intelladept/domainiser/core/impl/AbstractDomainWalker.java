@@ -1,5 +1,6 @@
-package com.intelladept.domainiser.core;
+package com.intelladept.domainiser.core.impl;
 
+import com.intelladept.domainiser.core.*;
 import org.apache.commons.lang.Validate;
 
 import java.util.*;
@@ -49,12 +50,20 @@ public abstract class AbstractDomainWalker implements DomainWalker {
     public <T> T walk(T domainModel) {
         Validate.notNull(domainModel, "Domain model to be cloned cannot be null");
 
-        return walk(domainModel, new DomainGraphDefinition<T>(DomainDefinition.getInstance((Class<T>) domainModel.getClass(), domainResolver)));
+        DomainGraphDefinitionDecorator<T> graphDecorator = new DomainGraphDefinitionDecorator<T>(
+                new DomainGraphDefinitionImpl<T>(DomainDefinition.getInstance((Class<T>) domainModel.getClass(), domainResolver))
+        );
+
+        return walk(domainModel, graphDecorator);
     }
 
     @Override
     public <T> List<T> walkList(List<T> domainModels, Class<T> clazz) {
-        return walkList(domainModels, new DomainGraphDefinition<T>(DomainDefinition.getInstance(clazz, domainResolver)));
+        DomainGraphDefinitionDecorator<T> graphDecorator = new DomainGraphDefinitionDecorator<T>(
+                new DomainGraphDefinitionImpl<T>(DomainDefinition.getInstance(clazz, domainResolver))
+        );
+
+        return walkList(domainModels, graphDecorator);
     }
 
     @Override
@@ -64,7 +73,10 @@ public abstract class AbstractDomainWalker implements DomainWalker {
 
     @Override
     public <T> Set<T> walkSet(Set<T> domainModels, Class<T> clazz) {
-        return walkSet(domainModels, new DomainGraphDefinition<T>(DomainDefinition.getInstance(clazz, domainResolver)));
+        DomainGraphDefinitionDecorator<T> graphDecorator = new DomainGraphDefinitionDecorator<T>(
+                new DomainGraphDefinitionImpl<T>(DomainDefinition.getInstance(clazz, domainResolver))
+        );
+        return walkSet(domainModels, graphDecorator);
     }
 
     @Override
@@ -74,8 +86,11 @@ public abstract class AbstractDomainWalker implements DomainWalker {
 
     @Override
     public <K, V> Map<K, V> walkMap(Map<K, V> domainModels, Class<V> clazz) {
-        return walkMap(domainModels, createEmptyMap(domainModels),
-                new DomainGraphDefinition<V>(DomainDefinition.getInstance(clazz, domainResolver)));
+        DomainGraphDefinitionDecorator<V> graphDecorator = new DomainGraphDefinitionDecorator<V>(
+                new DomainGraphDefinitionImpl<V>(DomainDefinition.getInstance(clazz, domainResolver))
+        );
+
+        return walkMap(domainModels, createEmptyMap(domainModels), graphDecorator);
     }
 
     @Override

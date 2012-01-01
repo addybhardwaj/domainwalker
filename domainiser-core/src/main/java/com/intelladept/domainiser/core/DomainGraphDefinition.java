@@ -1,62 +1,35 @@
 package com.intelladept.domainiser.core;
 
-import org.apache.commons.lang.Validate;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.Set;
 
 /**
- * Defines a domain graph for a specific domain model. This definition is utilised by domain walkers to hydrate domain
- * models with data before the service layer transactions are closed. <br/> A domain model can have many domain graph
- * definitions because various consumers of services might require different domain depths.
+ * Defines a domain graph with all its children graphs.
  *
  * @author Aditya Bhardwaj
- * @version $Id $
+ * @since 0.0.1
  */
-public class DomainGraphDefinition<K> implements Serializable {
-
-    private static final long serialVersionUID = 1L;
-
-    private final Map<String, DomainGraphDefinition<?>> children;
-
-    private final DomainDefinition<K> domainDefinition;
-
-
-    /**
-     * Default Constructor.
-     */
-    public DomainGraphDefinition(DomainDefinition<K> domainDefinition) {
-        this.children = new HashMap<String, DomainGraphDefinition<?>>();
-        this.domainDefinition = domainDefinition;
-    }
+public interface DomainGraphDefinition<K> {
 
     /**
      * Returns the domain definition.
      *
      * @return
      */
-    public DomainDefinition<K> getDomainDefinition() {
-        return domainDefinition;
-    }
+    DomainDefinition<K> getDomainDefinition();
 
     /**
      * Return the Class of the domain definition.
      *
      * @return the domainClass
      */
-    public Class<K> getDomainClass() {
-        return this.domainDefinition.getClazz();
-    }
+    Class<K> getDomainClass();
 
     /**
-     * Return the children.
+     * Returns all the children property names.
      *
-     * @return the children
+     * @return
      */
-    public Map<String, DomainGraphDefinition<?>> getAllChildren() {
-        return this.children;
-    }
+    Set<String> getAllChildrenNames();
 
     /**
      * Adds child domain graph.
@@ -64,11 +37,7 @@ public class DomainGraphDefinition<K> implements Serializable {
      * @param property
      * @param child
      */
-    public void addChild(String property, DomainGraphDefinition<?> child) {
-        //check if this property exist
-        Validate.isTrue(this.domainDefinition.getProperties().contains(property), property + " :property doesn't exist in the domain: " + getDomainClass());
-        getAllChildren().put(property, child);
-    }
+    void addChild(String property, DomainGraphDefinition<?> child);
 
     /**
      * Adds child domain graph with default domain graph
@@ -76,11 +45,7 @@ public class DomainGraphDefinition<K> implements Serializable {
      * @param property
      * @param propertyDomainDefinition
      */
-    public void addChild(String property, DomainDefinition<?> propertyDomainDefinition) {
-        //check if this property exist
-        Validate.isTrue(this.domainDefinition.getProperties().contains(property), property + " :property doesn't exist in the domain: " + getDomainClass());
-        getAllChildren().put(property, new DomainGraphDefinition(propertyDomainDefinition));
-    }
+    void addChild(String property, DomainDefinition<?> propertyDomainDefinition);
 
     /**
      * Finds a child domain graph and returns it.
@@ -89,14 +54,7 @@ public class DomainGraphDefinition<K> implements Serializable {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public <T> DomainGraphDefinition<T> getChild(String property, Class<T> clazz) {
-        DomainGraphDefinition<?> def = getChild(property);
-
-        if (def != null && clazz.isAssignableFrom(def.getDomainClass())) {
-            return (DomainGraphDefinition<T>) def;
-        }
-        return null;
-    }
+    <T> DomainGraphDefinition<T> getChild(String property, Class<T> clazz);
 
     /**
      * Finds a child domain graph and returns it.
@@ -105,10 +63,13 @@ public class DomainGraphDefinition<K> implements Serializable {
      * @return
      */
     @SuppressWarnings("unchecked")
-    public DomainGraphDefinition<?> getChild(String property) {
-        DomainGraphDefinition<?> def = this.children.get(property);
+    DomainGraphDefinition<?> getChild(String property);
 
-        return def;
-    }
 
+    /**
+     * Returns user friendly name for the graph.
+     *
+     * @return
+     */
+    String getName();
 }

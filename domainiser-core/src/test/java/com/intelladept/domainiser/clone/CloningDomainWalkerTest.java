@@ -1,15 +1,16 @@
 package com.intelladept.domainiser.clone;
 
 import com.intelladept.domainiser.core.DomainDefinition;
-import com.intelladept.domainiser.core.DomainGraphDefinition;
+import com.intelladept.domainiser.core.impl.DomainGraphDefinitionImpl;
 import com.intelladept.domainiser.core.DomainResolver;
+import com.intelladept.domainiser.example.Address;
+import com.intelladept.domainiser.example.ExampleDomainResolver;
+import com.intelladept.domainiser.example.Person;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
 
-import static com.intelladept.domainiser.core.DomainGraphDefinitionTest.Address;
-import static com.intelladept.domainiser.core.DomainGraphDefinitionTest.Person;
 import static junit.framework.Assert.assertNotNull;
 import static org.junit.Assert.*;
 
@@ -30,12 +31,7 @@ public class CloningDomainWalkerTest {
     public void setUp() throws Exception {
         cloningDomainWalker = new CloningDomainWalker();
 
-        DomainResolver domainResolver = new DomainResolver() {
-            @Override
-            public boolean isDomainModel(Class domain) {
-                return domain.getCanonicalName().contains("com.intelladept");
-            }
-        };
+        DomainResolver domainResolver = new ExampleDomainResolver();
         cloningDomainWalker.setDomainResolver(domainResolver);
 
         grandDad = new Person("Grand Dad", 80);
@@ -56,7 +52,7 @@ public class CloningDomainWalkerTest {
         Person child2 = new Person("Child 2", 15);
         dad.addChild(child2);
         mom.addChild(child2);
-        
+
         Person grandDadFriend1 = new Person(FRIEND_1, 80);
         Person grandDadFriend2 = new Person(FRIEND_2, 80);
         grandDad.addFriend(grandDadFriend1.getName(), grandDadFriend1);
@@ -116,7 +112,7 @@ public class CloningDomainWalkerTest {
     @Test
     public void testWalkCopySpouse() throws Exception {
         DomainDefinition<Person> personDomainDefinition = DomainDefinition.getInstance(Person.class, cloningDomainWalker.getDomainResolver());
-        DomainGraphDefinition<Person> domainGraphDefinition = new DomainGraphDefinition<Person>(personDomainDefinition);
+        DomainGraphDefinitionImpl<Person> domainGraphDefinition = new DomainGraphDefinitionImpl<Person>(personDomainDefinition);
         domainGraphDefinition.addChild("spouse", personDomainDefinition);
 
         Person person = cloningDomainWalker.walk(grandDad, domainGraphDefinition);
@@ -132,7 +128,7 @@ public class CloningDomainWalkerTest {
     @Test
     public void testWalkCopyChildren() throws Exception {
         DomainDefinition<Person> personDomainDefinition = DomainDefinition.getInstance(Person.class, cloningDomainWalker.getDomainResolver());
-        DomainGraphDefinition<Person> domainGraphDefinition = new DomainGraphDefinition<Person>(personDomainDefinition);
+        DomainGraphDefinitionImpl<Person> domainGraphDefinition = new DomainGraphDefinitionImpl<Person>(personDomainDefinition);
         domainGraphDefinition.addChild("children", personDomainDefinition);
 
         Person person = cloningDomainWalker.walk(grandDad, domainGraphDefinition);
@@ -149,7 +145,7 @@ public class CloningDomainWalkerTest {
     @Test
     public void testWalkCopyFriendsAndChildren() throws Exception {
         DomainDefinition<Person> personDomainDefinition = DomainDefinition.getInstance(Person.class, cloningDomainWalker.getDomainResolver());
-        DomainGraphDefinition<Person> domainGraphDefinition = new DomainGraphDefinition<Person>(personDomainDefinition);
+        DomainGraphDefinitionImpl<Person> domainGraphDefinition = new DomainGraphDefinitionImpl<Person>(personDomainDefinition);
         domainGraphDefinition.addChild("children", personDomainDefinition);
         domainGraphDefinition.addChild("friends", personDomainDefinition);
 
@@ -170,7 +166,7 @@ public class CloningDomainWalkerTest {
     public void testWalkCopyAddresses() throws Exception {
         DomainDefinition<Person> personDomainDefinition = DomainDefinition.getInstance(Person.class, cloningDomainWalker.getDomainResolver());
         DomainDefinition<Address> addressDomainDefinition = DomainDefinition.getInstance(Address.class, cloningDomainWalker.getDomainResolver());
-        DomainGraphDefinition<Person> domainGraphDefinition = new DomainGraphDefinition<Person>(personDomainDefinition);
+        DomainGraphDefinitionImpl<Person> domainGraphDefinition = new DomainGraphDefinitionImpl<Person>(personDomainDefinition);
         domainGraphDefinition.addChild("addresses", addressDomainDefinition);
 
         Person person = cloningDomainWalker.walk(grandDad, domainGraphDefinition);
@@ -193,7 +189,7 @@ public class CloningDomainWalkerTest {
     @Ignore
     public void testWalkCopySpouseAndChildrenCrossRefCheck() throws Exception {
         DomainDefinition<Person> personDomainDefinition = DomainDefinition.getInstance(Person.class, cloningDomainWalker.getDomainResolver());
-        DomainGraphDefinition<Person> domainGraphDefinition = new DomainGraphDefinition<Person>(personDomainDefinition);
+        DomainGraphDefinitionImpl<Person> domainGraphDefinition = new DomainGraphDefinitionImpl<Person>(personDomainDefinition);
         domainGraphDefinition.addChild("children", personDomainDefinition);
         domainGraphDefinition.addChild("spouse", personDomainDefinition);
 
