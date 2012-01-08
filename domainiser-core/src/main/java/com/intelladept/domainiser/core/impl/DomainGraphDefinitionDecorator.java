@@ -3,10 +3,14 @@ package com.intelladept.domainiser.core.impl;
 import com.intelladept.domainiser.core.DomainDefinition;
 import com.intelladept.domainiser.core.DomainGraphDefinition;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
- * Decorates the {@link com.intelladept.domainiser.core.DomainGraphDefinition} with walking path i.e. object.spouse.children.friends etc.
+ * Decorates the {@link com.intelladept.domainiser.core.DomainGraphDefinition} with walking path
+ * <p>For instance, <br/>
+ * e.g. object.spouse.children.friends etc.
+ * </p>
  *
  * @author Aditya Bhardwaj
  * @since 0.0.1
@@ -78,6 +82,11 @@ public class DomainGraphDefinitionDecorator<K> implements DomainGraphDefinition<
     @Override
     public String getName() {
         return walkingPath.toString();
+    }
+
+    @Override
+    public Map getGraph() {
+        return this.underlyingDomainGraphDefinition.getGraph();
     }
 
     @Override

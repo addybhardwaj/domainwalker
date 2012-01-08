@@ -1,5 +1,6 @@
 package com.intelladept.domainiser.core;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -72,4 +73,11 @@ public interface DomainGraphDefinition<K> {
      * @return
      */
     String getName();
+
+    /**
+     * Returns the Map representation.
+     *
+     * @return
+     */
+    Map getGraph();
 }

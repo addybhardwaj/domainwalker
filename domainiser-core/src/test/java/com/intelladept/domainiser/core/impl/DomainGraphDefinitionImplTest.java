@@ -8,8 +8,10 @@ import com.intelladept.domainiser.example.ExampleDomainResolver;
 import com.intelladept.domainiser.example.Person;
 import org.junit.Before;
 import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-import java.util.*;
+import java.util.Set;
 
 import static junit.framework.Assert.*;
 
@@ -19,6 +21,8 @@ import static junit.framework.Assert.*;
  * @author Aditya Bhardwaj
  */
 public class DomainGraphDefinitionImplTest {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(DomainGraphDefinitionImplTest.class);
 
     private DomainGraphDefinitionImpl<Person> personDomainGraphDefinition;
 
@@ -52,7 +56,7 @@ public class DomainGraphDefinitionImplTest {
         personDomainGraphDefinition.addChild(children, new DomainGraphDefinitionImpl<Address>(DomainDefinition.getInstance(Address.class, domainResolver)));
         Set<String> childrenDef = personDomainGraphDefinition.getAllChildrenNames();
         assertNotNull(childrenDef.contains(children));
-
+        LOGGER.info(personDomainGraphDefinition.toString());
     }
 
     @Test(expected = IllegalArgumentException.class)

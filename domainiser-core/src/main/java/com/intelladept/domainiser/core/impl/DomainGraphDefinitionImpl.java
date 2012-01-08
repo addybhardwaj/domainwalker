@@ -1,5 +1,6 @@
 package com.intelladept.domainiser.core.impl;
 
+import com.google.gson.Gson;
 import com.intelladept.domainiser.core.DomainDefinition;
 import com.intelladept.domainiser.core.DomainGraphDefinition;
 import org.apache.commons.lang.Validate;
@@ -25,6 +26,7 @@ public class DomainGraphDefinitionImpl<K> implements Serializable, DomainGraphDe
 
     private final DomainDefinition<K> domainDefinition;
 
+    public static final Gson GSON = new Gson();
 
     /**
      * Default Constructor.
@@ -131,5 +133,27 @@ public class DomainGraphDefinitionImpl<K> implements Serializable, DomainGraphDe
     public String getName() {
         return this.domainDefinition.getClazz().getSimpleName();
     }
+
+    /**
+     * Returns Map representation of the graph.
+     *
+     * @return
+     */
+    @Override
+    public Map getGraph() {
+        Map graph = new HashMap();
+        for(String childProperty : children.keySet()) {
+            graph.put(childProperty, children.get(childProperty).getGraph());
+        }
+
+        return graph;
+    }
+
+
+    @Override
+    public String toString() {
+        return GSON.toJson(getGraph());
+    }
+
 
 }

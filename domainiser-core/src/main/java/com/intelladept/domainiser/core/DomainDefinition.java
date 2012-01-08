@@ -11,10 +11,9 @@ import java.lang.reflect.GenericArrayType;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.lang.reflect.WildcardType;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 /**
  * Holds the RW properties for a domain Model and also provides information about the nested
@@ -39,6 +38,12 @@ public final class DomainDefinition<K> implements Serializable {
         properties = new HashMap<String, PropertyDefinition>();
     }
 
+    private static Lock domainResolverCacheLock = new ReentrantLock();
+    private static Lock classDefinitionCacheLock = new ReentrantLock();
+
+    private static final Map<DomainResolver, Map<Class<?>, DomainDefinition<?>>> CACHED_DEFINITIONS =
+            new WeakHashMap<DomainResolver, Map<Class<?>, DomainDefinition<?>>>();
+
 
     /**
      * Provides instance of domain definition for the provided domain resolver.
@@ -49,9 +54,27 @@ public final class DomainDefinition<K> implements Serializable {
      * @return
      */
     public static <T> DomainDefinition<T> getInstance(Class<T> clazz, DomainResolver domainResolver) {
-        DomainDefinition<T> domainDefinition = new DomainDefinition<T>(clazz);
-        domainDefinition.init(domainResolver);
-        return domainDefinition;
+        if (CACHED_DEFINITIONS.get(domainResolver) == null) {
+            domainResolverCacheLock.lock();
+            if (CACHED_DEFINITIONS.get(domainResolver) == null) {
+               CACHED_DEFINITIONS.put(domainResolver, new WeakHashMap<Class<?>, DomainDefinition<?>>());
+            }
+            domainResolverCacheLock.unlock();
+        }
+
+        Map<Class<?>, DomainDefinition<?>> cachedClassDef =  CACHED_DEFINITIONS.get(domainResolver);
+
+        if(cachedClassDef.get(clazz) == null) {
+            classDefinitionCacheLock.lock();
+            if(cachedClassDef.get(clazz) == null) {
+                DomainDefinition<T> domainDefinition = new DomainDefinition<T>(clazz);
+                domainDefinition.init(domainResolver);
+                cachedClassDef.put(clazz, domainDefinition);
+            }
+            classDefinitionCacheLock.unlock();
+        }
+
+        return (DomainDefinition<T>) cachedClassDef.get(clazz);
     }
 
     /**
@@ -61,7 +84,6 @@ public final class DomainDefinition<K> implements Serializable {
      * @param domainResolver
      */
     public void init(DomainResolver domainResolver) {
-
         Validate.notNull(domainResolver, "Domain resolver cannot be null");
 
         LOGGER.info("Initialising Domain Definition for [{}]", getClazz());
