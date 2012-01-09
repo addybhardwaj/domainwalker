@@ -56,22 +56,29 @@ public final class DomainDefinition<K> implements Serializable {
     public static <T> DomainDefinition<T> getInstance(Class<T> clazz, DomainResolver domainResolver) {
         if (CACHED_DEFINITIONS.get(domainResolver) == null) {
             domainResolverCacheLock.lock();
-            if (CACHED_DEFINITIONS.get(domainResolver) == null) {
-               CACHED_DEFINITIONS.put(domainResolver, new WeakHashMap<Class<?>, DomainDefinition<?>>());
+            try {
+                if (CACHED_DEFINITIONS.get(domainResolver) == null) {
+                   CACHED_DEFINITIONS.put(domainResolver, new WeakHashMap<Class<?>, DomainDefinition<?>>());
+                }
+            } finally {
+                domainResolverCacheLock.unlock();
             }
-            domainResolverCacheLock.unlock();
         }
 
         Map<Class<?>, DomainDefinition<?>> cachedClassDef =  CACHED_DEFINITIONS.get(domainResolver);
 
         if(cachedClassDef.get(clazz) == null) {
             classDefinitionCacheLock.lock();
-            if(cachedClassDef.get(clazz) == null) {
-                DomainDefinition<T> domainDefinition = new DomainDefinition<T>(clazz);
-                domainDefinition.init(domainResolver);
-                cachedClassDef.put(clazz, domainDefinition);
+
+            try {
+                if(cachedClassDef.get(clazz) == null) {
+                    DomainDefinition<T> domainDefinition = new DomainDefinition<T>(clazz);
+                    domainDefinition.init(domainResolver);
+                    cachedClassDef.put(clazz, domainDefinition);
+                }
+            } finally {
+                classDefinitionCacheLock.unlock();
             }
-            classDefinitionCacheLock.unlock();
         }
 
         return (DomainDefinition<T>) cachedClassDef.get(clazz);
