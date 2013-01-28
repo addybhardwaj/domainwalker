@@ -11,7 +11,7 @@ public class ExampleDomainResolver implements DomainResolver {
 
     @Override
     public boolean isDomainModel(Class domain) {
-        return domain.getCanonicalName().contains("intelladept");
+        return domain.getCanonicalName().contains("knaptus");
 
     }
 }
