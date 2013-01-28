@@ -1,6 +1,6 @@
-package com.intelladept.domainiser.core;
+package com.knaptus.domainiser.core;
 
-import com.intelladept.domainiser.example.ExampleDomainResolver;
+import com.knaptus.domainiser.example.ExampleDomainResolver;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -28,7 +28,7 @@ public class DomainDefinitionTest {
 
        );
     }
-    
+
     @Test
     public void testInit() throws Exception {
 
@@ -41,7 +41,7 @@ public class DomainDefinitionTest {
         assertNull(domainDefinition.getUnderlyingDomainModel("reverseLookup"));
         assertNull(null, domainDefinition.getUnderlyingDomainModel("ages"));
     }
-    
+
     private static class Bean {
         private int count;
         private Boolean isTrue;

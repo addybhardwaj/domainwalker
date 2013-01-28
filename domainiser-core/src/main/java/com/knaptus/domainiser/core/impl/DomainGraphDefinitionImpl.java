@@ -1,8 +1,8 @@
-package com.intelladept.domainiser.core.impl;
+package com.knaptus.domainiser.core.impl;
 
 import com.google.gson.Gson;
-import com.intelladept.domainiser.core.DomainDefinition;
-import com.intelladept.domainiser.core.DomainGraphDefinition;
+import com.knaptus.domainiser.core.DomainDefinition;
+import com.knaptus.domainiser.core.DomainGraphDefinition;
 import org.apache.commons.lang.Validate;
 
 import java.io.Serializable;

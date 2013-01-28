@@ -1,4 +1,4 @@
-package com.intelladept.domainiser.example;
+package com.knaptus.domainiser.example;
 
 /**
  * Example domain object

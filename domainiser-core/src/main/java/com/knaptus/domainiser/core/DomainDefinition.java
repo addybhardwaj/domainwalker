@@ -1,4 +1,4 @@
-package com.intelladept.domainiser.core;
+package com.knaptus.domainiser.core;
 
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.lang.Validate;
@@ -32,7 +32,7 @@ public final class DomainDefinition<K> implements Serializable {
     private final Map<String, PropertyDefinition> properties;
 
     private boolean isInitialised = false;
-    
+
     private DomainDefinition(Class<K> clazz) {
         this.clazz = clazz;
         properties = new HashMap<String, PropertyDefinition>();
@@ -139,7 +139,7 @@ public final class DomainDefinition<K> implements Serializable {
                         } else {
                             isUnknownType = true;
                         }
-                        
+
                     } else if (type instanceof WildcardType) {
                         isUnknownType = true;
 
@@ -161,11 +161,11 @@ public final class DomainDefinition<K> implements Serializable {
 
         isInitialised = true;
     }
-    
+
     private int getUnderlyingTypeIndex(Class wrappingClass) {
         if(Collection.class.isAssignableFrom(wrappingClass)) {
             return 0;
-            
+
         } else if (Map.class.isAssignableFrom(wrappingClass)) {
             return 1;
         } else {

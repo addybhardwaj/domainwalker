@@ -1,9 +1,9 @@
-package com.intelladept.domainiser.clone;
+package com.knaptus.domainiser.clone;
 
-import com.intelladept.domainiser.core.impl.AbstractDomainWalker;
-import com.intelladept.domainiser.core.DomainDefinition;
-import com.intelladept.domainiser.core.DomainGraphDefinition;
-import com.intelladept.domainiser.core.impl.DomainGraphDefinitionDecorator;
+import com.knaptus.domainiser.core.impl.AbstractDomainWalker;
+import com.knaptus.domainiser.core.DomainDefinition;
+import com.knaptus.domainiser.core.DomainGraphDefinition;
+import com.knaptus.domainiser.core.impl.DomainGraphDefinitionDecorator;
 import net.sf.cglib.beans.BeanMap;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;

@@ -1,6 +1,6 @@
-package com.intelladept.domainiser.core.impl;
+package com.knaptus.domainiser.core.impl;
 
-import com.intelladept.domainiser.core.*;
+import com.knaptus.domainiser.core.*;
 import org.apache.commons.lang.Validate;
 
 import java.util.*;
@@ -9,7 +9,7 @@ import java.util.*;
  * Provides capability to traverse a specific section of domain graph and take action on the traversed path. For
  * instance, implementation of DomainWalker can be used to clone a section of domain graph or lazily load domain graph
  * in conjunction with ORM libraries.
- * 
+ *
  * @author Aditya Bhardwaj
  * @version $Id $
  */
@@ -45,7 +45,7 @@ public abstract class AbstractDomainWalker implements DomainWalker {
      */
     public abstract <K, V> Map<K, V> walkMap(Map<K, V> domainModels, Map<K, V> returnMap,
                                     DomainGraphDefinition<V> domainGraphDefinition);
-    
+
     @Override
     public <T> T walk(T domainModel) {
         Validate.notNull(domainModel, "Domain model to be cloned cannot be null");

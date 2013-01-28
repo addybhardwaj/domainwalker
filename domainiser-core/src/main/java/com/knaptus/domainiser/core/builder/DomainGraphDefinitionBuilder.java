@@ -1,9 +1,9 @@
-package com.intelladept.domainiser.core.builder;
+package com.knaptus.domainiser.core.builder;
 
-import com.intelladept.domainiser.core.DomainDefinition;
-import com.intelladept.domainiser.core.DomainGraphDefinition;
-import com.intelladept.domainiser.core.DomainResolver;
-import com.intelladept.domainiser.core.impl.DomainGraphDefinitionImpl;
+import com.knaptus.domainiser.core.DomainDefinition;
+import com.knaptus.domainiser.core.DomainGraphDefinition;
+import com.knaptus.domainiser.core.DomainResolver;
+import com.knaptus.domainiser.core.impl.DomainGraphDefinitionImpl;
 import org.apache.commons.lang.Validate;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,26 +26,26 @@ public class DomainGraphDefinitionBuilder<T> {
     public static final String DOT_DELIMITER = "\\.";
     private DomainResolver domainResolver;
     private Class<T> clazz;
-    
+
     private Map<String, DomainGraphDefinitionBuilder<?>> childrenBuilders = new HashMap<String, DomainGraphDefinitionBuilder<?>>();
-        
+
     public DomainGraphDefinitionBuilder() {}
-    
+
     public DomainGraphDefinitionBuilder(DomainResolver domainResolver, Class<T> clazz) {
         this.domainResolver = domainResolver;
         this.clazz = clazz;
     }
-    
+
     public DomainGraphDefinitionBuilder<T> withResolver(DomainResolver domainResolver) {
         this.domainResolver = domainResolver;
         return this;
     }
-    
+
     public DomainGraphDefinitionBuilder<T> forClass(Class<T> clazz) {
         this.clazz = clazz;
         return this;
     }
-    
+
     public DomainGraphDefinitionBuilder<T> withSinglePath(String... nestedPath) {
         if (nestedPath != null) {
             List<String> nestedPathList = new ArrayList<String>();
@@ -56,24 +56,24 @@ public class DomainGraphDefinitionBuilder<T> {
         }
         return this;
     }
-    
+
     public DomainGraphDefinitionBuilder<T> withSinglePath(List<String> nestedPath) {
         if(nestedPath != null && nestedPath.size() > 0) {
             String childName = nestedPath.remove(0);
             DomainGraphDefinitionBuilder<?> childBuilder = childrenBuilders.get(childName);
             DomainDefinition<T> domainDefinition = DomainDefinition.getInstance(clazz, domainResolver);
             Class<?> childClass = domainDefinition.getUnderlyingDomainModel(childName);
-            
+
             if(childBuilder == null) {
                 childBuilder = new DomainGraphDefinitionBuilder(domainResolver, childClass);
                 childrenBuilders.put(childName, childBuilder);
             }
-            
+
             childBuilder.withSinglePath(nestedPath);
         }
         return this;
     }
-    
+
     public DomainGraphDefinitionBuilder<T> withPathsDotNotation(String... paths) {
         if(paths != null) {
             for(String singlePathString : paths) {
@@ -83,7 +83,7 @@ public class DomainGraphDefinitionBuilder<T> {
         }
         return this;
     }
-    
+
     public DomainGraphDefinitionBuilder<T> withDomainGraphDefinitionBuilder(DomainGraphDefinitionBuilder<?> childDomainGraphDef, String childProperty) {
         if(childDomainGraphDef != null) {
             DomainGraphDefinitionBuilder<?> childBuilder = getAndSetChildBuilder(childProperty);
@@ -114,7 +114,7 @@ public class DomainGraphDefinitionBuilder<T> {
         withDefinitionMap(def);
         return this;
     }
-    
+
     public DomainGraphDefinitionBuilder<T> withDefinitionMap(Map childrenPropertyMap) {
         if(childrenPropertyMap != null) {
             for(Object key : childrenPropertyMap.keySet()) {
@@ -126,14 +126,14 @@ public class DomainGraphDefinitionBuilder<T> {
 
                 String property = (String) key;
                 Map grandChildrenPropertyMap = (Map) value;
-                
+
                 DomainGraphDefinitionBuilder<?> childBuilder = getAndSetChildBuilder(property);
                 childBuilder.withDefinitionMap(grandChildrenPropertyMap);
             }
         }
         return this;
     }
-    
+
     public DomainGraphDefinition<T> build() {
         Validate.isTrue(clazz!=null && domainResolver != null, "Class and DomainResolver are required for building DomainGraphDefinition");
         DomainDefinition<T> domainDefinition = DomainDefinition.getInstance(clazz, domainResolver);

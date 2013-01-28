@@ -1,11 +1,11 @@
-package com.intelladept.domainiser.core.impl;
+package com.knaptus.domainiser.core.impl;
 
-import com.intelladept.domainiser.core.DomainDefinition;
-import com.intelladept.domainiser.core.DomainGraphDefinition;
-import com.intelladept.domainiser.core.DomainResolver;
-import com.intelladept.domainiser.example.Address;
-import com.intelladept.domainiser.example.ExampleDomainResolver;
-import com.intelladept.domainiser.example.Person;
+import com.knaptus.domainiser.core.DomainDefinition;
+import com.knaptus.domainiser.core.DomainGraphDefinition;
+import com.knaptus.domainiser.core.DomainResolver;
+import com.knaptus.domainiser.example.Address;
+import com.knaptus.domainiser.example.ExampleDomainResolver;
+import com.knaptus.domainiser.example.Person;
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;

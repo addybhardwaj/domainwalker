@@ -1,6 +1,6 @@
-package com.intelladept.domainiser.example;
+package com.knaptus.domainiser.example;
 
-import com.intelladept.domainiser.core.DomainResolver;
+import com.knaptus.domainiser.core.DomainResolver;
 
 /**
  * Example of a domain resolver.

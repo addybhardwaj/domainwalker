@@ -1,4 +1,4 @@
-package com.intelladept.domainiser.core;
+package com.knaptus.domainiser.core;
 
 import java.util.Map;
 import java.util.Set;

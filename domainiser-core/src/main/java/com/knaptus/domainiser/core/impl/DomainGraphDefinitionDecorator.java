@@ -1,13 +1,13 @@
-package com.intelladept.domainiser.core.impl;
+package com.knaptus.domainiser.core.impl;
 
-import com.intelladept.domainiser.core.DomainDefinition;
-import com.intelladept.domainiser.core.DomainGraphDefinition;
+import com.knaptus.domainiser.core.DomainDefinition;
+import com.knaptus.domainiser.core.DomainGraphDefinition;
 
 import java.util.Map;
 import java.util.Set;
 
 /**
- * Decorates the {@link com.intelladept.domainiser.core.DomainGraphDefinition} with walking path
+ * Decorates the {@link com.knaptus.domainiser.core.DomainGraphDefinition} with walking path
  * <p>For instance, <br/>
  * e.g. object.spouse.children.friends etc.
  * </p>

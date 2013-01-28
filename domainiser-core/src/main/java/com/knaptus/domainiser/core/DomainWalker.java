@@ -1,4 +1,4 @@
-package com.intelladept.domainiser.core;
+package com.knaptus.domainiser.core;
 
 import java.util.List;
 import java.util.Map;
@@ -8,7 +8,7 @@ import java.util.Set;
  * Provides capability to traverse a specific section of domain graph and take action on the traversed path. For
  * instance, implementation of DomainWalker can be used to clone a section of domain graph or lazily load domain graph
  * in conjunction with ORM libraries.
- * 
+ *
  * @author Aditya Bhardwaj
  * @version $Id $
  */
@@ -35,7 +35,7 @@ public interface DomainWalker {
 
     /**
      * Walks a list of domain objects with the default domain graph def.
-     * 
+     *
      * @param domainModels
      * @param clazz
      * @param <T>
@@ -54,7 +54,7 @@ public interface DomainWalker {
 
     /**
      * Walks a set of domain objects with the default domain graph def.
-     * 
+     *
      * @param domainModels
      * @param clazz
      * @param <T>
@@ -64,7 +64,7 @@ public interface DomainWalker {
 
     /**
      * Walks a set of domain objects with the provided domain graph def.
-     * 
+     *
      * @param domainModels
      * @param domainGraphDefinition
      * @param <T>
@@ -74,7 +74,7 @@ public interface DomainWalker {
 
     /**
      * Walks a map of domain objects (domain objects set as the values) with the provided domain graph def.
-     * 
+     *
      * @param domainModels
      * @param domainGraphDefinition
      * @param <K> non domain key types

@@ -1,4 +1,4 @@
-package com.intelladept.domainiser.core;
+package com.knaptus.domainiser.core;
 
 /**
  * Provides logic to identify Java Beans which are identified as domain objects.

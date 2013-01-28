@@ -1,11 +1,11 @@
-package com.intelladept.domainiser.clone;
+package com.knaptus.domainiser.clone;
 
-import com.intelladept.domainiser.core.DomainDefinition;
-import com.intelladept.domainiser.core.impl.DomainGraphDefinitionImpl;
-import com.intelladept.domainiser.core.DomainResolver;
-import com.intelladept.domainiser.example.Address;
-import com.intelladept.domainiser.example.ExampleDomainResolver;
-import com.intelladept.domainiser.example.Person;
+import com.knaptus.domainiser.core.DomainDefinition;
+import com.knaptus.domainiser.core.impl.DomainGraphDefinitionImpl;
+import com.knaptus.domainiser.core.DomainResolver;
+import com.knaptus.domainiser.example.Address;
+import com.knaptus.domainiser.example.ExampleDomainResolver;
+import com.knaptus.domainiser.example.Person;
 import junit.framework.Assert;
 import org.junit.Before;
 import org.junit.Ignore;
@@ -61,7 +61,7 @@ public class CloningDomainWalkerTest {
         Address address1 = new Address();
         address1.setLine1("address1");
         grandDad.addAddress(address1);
-        
+
         Address address2 = new Address();
         address2.setLine1("address2");
         grandDad.addAddress(address2);
@@ -104,7 +104,7 @@ public class CloningDomainWalkerTest {
         for(Address address : grandDad.getAddresses()) {
             if(address ==  clonedAddress) {
                 exactMatchFound = true;
-            }            
+            }
         }
         assertTrue("Atleast one should match by reference", exactMatchFound);
     }
